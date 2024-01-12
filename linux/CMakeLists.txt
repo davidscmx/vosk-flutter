@@ -7,6 +7,9 @@ cmake_minimum_required(VERSION 3.10)
 set(PROJECT_NAME "vosk_flutter")
 project(${PROJECT_NAME} LANGUAGES CXX)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GTK REQUIRED gtk+-3.0)
+
 # This value is used when generating builds using this plugin, so it must
 # not be changed.
 set(PLUGIN_NAME "vosk_flutter_plugin")
@@ -22,7 +25,7 @@ add_library(${PLUGIN_NAME} SHARED
 # Apply a standard set of build settings that are configured in the
 # application-level CMakeLists.txt. This can be removed for plugins that want
 # full control over build settings.
-apply_standard_settings(${PLUGIN_NAME})
+#apply_standard_settings(${PLUGIN_NAME})
 
 # Symbols are hidden by default to reduce the chance of accidental conflicts
 # between plugins. This should not be removed; any symbols that should be
@@ -37,13 +40,13 @@ target_include_directories(${PLUGIN_NAME} INTERFACE
   "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter)
 target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
-
+target_link_libraries(${PLUGIN_NAME} PRIVATE ${GTK_LIBRARIES})
+target_include_directories(${PLUGIN_NAME} PRIVATE ${GTK_INCLUDE_DIRS})
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an
 # external build triggered from this build file.
 set(vosk_flutter_bundled_libraries
   "${CMAKE_CURRENT_SOURCE_DIR}/libs/libvosk.so"
-  PARENT_SCOPE
 )
 
 #message ("FLUTTER_ROOT is $ENV{FLUTTER_ROOT}")
@@ -52,7 +55,7 @@ set(vosk_flutter_bundled_libraries
 execute_process(COMMAND "$ENV{FLUTTER_ROOT}/bin/flutter" "pub" "run" "vosk_flutter" "install" "-t" "linux"
         OUTPUT_VARIABLE output
         RESULT_VARIABLE result
-        COMMAND_ERROR_IS_FATAL ANY
+        #COMMAND_ERROR_IS_FATAL ANY
         )
 message(STATUS "cmd output: ${output}")
 message(STATUS "cmd result: ${result}")
